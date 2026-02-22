@@ -12,8 +12,8 @@ export default function App() {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const slides = [
-    { id: 1, image: "/photos/foto1.png", duration: 6000 },
-    { id: 2, image: "/photos/foto2.png", duration: 6000, hasPhoto: true },
+    { id: 1, image: "/photos/foto1.png", duration: 7000 },
+    { id: 2, image: "/photos/foto2.png", duration: 7000, hasPhoto: true },
     { id: 3, image: "/photos/foto3.png", duration: 18000 }, // Más tiempo para leer la invitación
     { id: 4, image: "/photos/foto4.png", duration: 15000 }, // Más tiempo para leer el texto
     { id: 5, image: "/photos/foto5.png", duration: 12000 },
@@ -146,8 +146,25 @@ export default function App() {
     }, 2000);
   };
 
+  const handleGlobalClick = () => {
+    // Si la música no ha empezado o está silenciada, cualquier toque en la pantalla la inicia
+    if (audioRef.current && (audioRef.current.paused || audioRef.current.muted || !audioStarted)) {
+      audioRef.current.muted = false;
+      audioRef.current.play()
+        .then(() => {
+          setAudioStarted(true);
+          setIsMuted(false);
+        })
+        .catch(err => console.error("Error playing audio on interaction:", err));
+    }
+  };
+
   return (
-    <div className="h-screen w-screen overflow-hidden bg-gradient-to-b from-orange-400 via-orange-500 to-orange-600 flex items-center justify-center relative">
+    <div 
+      onClick={handleGlobalClick}
+      onTouchStart={handleGlobalClick}
+      className="h-screen w-screen overflow-hidden bg-gradient-to-b from-orange-400 via-orange-500 to-orange-600 flex items-center justify-center relative cursor-pointer"
+    >
       {/* Audio de fondo */}
       <audio ref={audioRef} loop preload="auto">
         <source src="/music/cumpleanos.mp3" type="audio/mpeg" />
