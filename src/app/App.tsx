@@ -12,13 +12,13 @@ export default function App() {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const slides = [
-    { id: 1, image: '/photos/foto1.jpg', duration: 8000 },
-    { id: 2, image: '/photos/foto2.jpg', duration: 8000, hasPhoto: true },
-    { id: 3, image: '/photos/foto3.jpg', duration: 15000 }, // Más tiempo para leer la invitación
-    { id: 4, image: '/photos/foto4.jpg', duration: 12000 }, // Más tiempo para leer el texto
-    { id: 5, image: '/photos/foto5.jpg', duration: 8000 },
-    { id: 6, image: '/photos/foto6.jpg', duration: 8000 },
-  ];
+  { id: 1, image: '/photos/foto1.png', duration: 8000 },
+  { id: 2, image: '/photos/foto2.png', duration: 8000, hasPhoto: true },
+  { id: 3, image: '/photos/foto3.png', duration: 15000 },
+  { id: 4, image: '/photos/foto4.png', duration: 12000 },
+  { id: 5, image: '/photos/foto5.png', duration: 8000 },
+  { id: 6, image: '/photos/foto6.png', duration: 8000 },
+];
 
   useEffect(() => {
     // Intentar reproducir música al cargar
