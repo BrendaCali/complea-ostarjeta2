@@ -12,11 +12,11 @@ export default function App() {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const slides = [
-    { id: 1, image: "/photos/foto1.png", duration: 5000 },
-    { id: 2, image: "/photos/foto2.png", duration: 5000, hasPhoto: true },
-    { id: 3, image: "/photos/foto3.png", duration: 15000 }, // Más tiempo para leer la invitación
-    { id: 4, image: "/photos/foto4.png", duration: 12000 }, // Más tiempo para leer el texto
-    { id: 5, image: "/photos/foto5.png", duration: 8000 },
+    { id: 1, image: "/photos/foto1.png", duration: 6000 },
+    { id: 2, image: "/photos/foto2.png", duration: 6000, hasPhoto: true },
+    { id: 3, image: "/photos/foto3.png", duration: 18000 }, // Más tiempo para leer la invitación
+    { id: 4, image: "/photos/foto4.png", duration: 15000 }, // Más tiempo para leer el texto
+    { id: 5, image: "/photos/foto5.png", duration: 12000 },
     { id: 6, image: "/photos/foto6.png", duration: 8000 },
   ];
 
@@ -159,7 +159,7 @@ export default function App() {
       {!showPalms && !showRestart && (
         <button
           onClick={toggleAudio}
-          className="absolute top-4 left-4 z-50 w-12 h-12 bg-white/30 hover:bg-white/50 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm animate-pulse hover:animate-none"
+          className="absolute top-4 left-4 z-50 w-12 h-12 bg-white/30 hover:bg-white/50 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm animate-pulse hover:animate-none scale-125"
           aria-label={isMuted ? 'Activar sonido' : 'Silenciar'}
         >
           {isMuted ? (
@@ -332,7 +332,7 @@ export default function App() {
                   className="absolute top-[8%] left-1/2 transform -translate-x-1/2"
                   style={{ zIndex: 10 }}
                 >
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full border-4 border-yellow-400 shadow-2xl overflow-hidden bg-white">
+                  <div className="w-36 h-36 sm:w-48 sm:h-48 md:w-56 md:h-56 rounded-full border-4 border-yellow-400 shadow-2xl overflow-hidden bg-white">
                     <img
                       src="/photos/cumpleanero.jpg"
                       alt="Cumpleañero"
