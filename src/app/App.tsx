@@ -12,13 +12,24 @@ export default function App() {
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const slides = [
-  { id: 1, image: '/photos/foto1.png', duration: 8000 },
-  { id: 2, image: '/photos/foto2.png', duration: 8000, hasPhoto: true },
-  { id: 3, image: '/photos/foto3.png', duration: 15000 },
-  { id: 4, image: '/photos/foto4.png', duration: 12000 },
-  { id: 5, image: '/photos/foto5.png', duration: 8000 },
-  { id: 6, image: '/photos/foto6.png', duration: 8000 },
-];
+    { id: 1, image: "/photos/foto1.png", duration: 5000 },
+    { id: 2, image: "/photos/foto2.png", duration: 5000, hasPhoto: true },
+    { id: 3, image: "/photos/foto3.png", duration: 15000 }, // Más tiempo para leer la invitación
+    { id: 4, image: "/photos/foto4.png", duration: 12000 }, // Más tiempo para leer el texto
+    { id: 5, image: "/photos/foto5.png", duration: 8000 },
+    { id: 6, image: "/photos/foto6.png", duration: 8000 },
+  ];
+
+  // Pre-cargar imágenes para evitar demoras
+  useEffect(() => {
+    slides.forEach((slide) => {
+      const img = new Image();
+      img.src = slide.image;
+    });
+    // También pre-cargar la foto del cumpleañero
+    const cumpleImg = new Image();
+    cumpleImg.src = "/photos/cumpleanero.jpg";
+  }, []);
 
   useEffect(() => {
     // Intentar reproducir música al cargar
@@ -27,9 +38,12 @@ export default function App() {
         audioRef.current.play()
           .then(() => {
             setAudioStarted(true);
+            setIsMuted(false);
           })
           .catch(err => {
-            console.log('Autoplay prevented, click to start audio:', err);
+            console.log('Autoplay prevented, waiting for interaction:', err);
+            // Si falla el autoplay, probablemente esté en mute o bloqueado
+            setIsMuted(true);
           });
       }
     };
@@ -38,7 +52,14 @@ export default function App() {
 
     // Intentar de nuevo al primer click o touch
     const handleInteraction = () => {
-      tryPlayAudio();
+      if (audioRef.current) {
+        audioRef.current.play()
+          .then(() => {
+            setAudioStarted(true);
+            setIsMuted(false);
+          })
+          .catch(err => console.log('Audio play failed on interaction:', err));
+      }
       document.removeEventListener('click', handleInteraction);
       document.removeEventListener('touchstart', handleInteraction);
     };
@@ -82,10 +103,22 @@ export default function App() {
     }
   }, [currentSlide, showPalms, showClosingPalms, showRestart]);
 
-  const toggleMute = () => {
+  const toggleAudio = () => {
     if (audioRef.current) {
-      audioRef.current.muted = !isMuted;
-      setIsMuted(!isMuted);
+      if (audioRef.current.paused || audioStarted === false) {
+        // Si está pausado o no ha iniciado, intentar reproducir
+        audioRef.current.play()
+          .then(() => {
+            setAudioStarted(true);
+            setIsMuted(false);
+            audioRef.current!.muted = false;
+          })
+          .catch(err => console.error("Error playing audio:", err));
+      } else {
+        // Si ya está sonando, alternar el mute
+        audioRef.current.muted = !audioRef.current.muted;
+        setIsMuted(!isMuted);
+      }
     }
   };
 
@@ -98,7 +131,13 @@ export default function App() {
     // Reiniciar audio
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
-      audioRef.current.play();
+      audioRef.current.play()
+        .then(() => {
+          setAudioStarted(true);
+          setIsMuted(false);
+          audioRef.current!.muted = false;
+        })
+        .catch(err => console.error("Error restarting audio:", err));
     }
 
     // Ocultar palmeras después de 2 segundos
@@ -110,7 +149,7 @@ export default function App() {
   return (
     <div className="h-screen w-screen overflow-hidden bg-gradient-to-b from-orange-400 via-orange-500 to-orange-600 flex items-center justify-center relative">
       {/* Audio de fondo */}
-      <audio ref={audioRef} loop>
+      <audio ref={audioRef} loop preload="auto">
         <source src="/music/cumpleanos.mp3" type="audio/mpeg" />
         <source src="/music/cumpleanos.wav" type="audio/wav" />
         <source src="/music/cumpleanos.ogg" type="audio/ogg" />
@@ -119,8 +158,8 @@ export default function App() {
       {/* Botón de control de audio */}
       {!showPalms && !showRestart && (
         <button
-          onClick={toggleMute}
-          className="absolute top-4 left-4 z-50 w-12 h-12 bg-white/30 hover:bg-white/50 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm"
+          onClick={toggleAudio}
+          className="absolute top-4 left-4 z-50 w-12 h-12 bg-white/30 hover:bg-white/50 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm animate-pulse hover:animate-none"
           aria-label={isMuted ? 'Activar sonido' : 'Silenciar'}
         >
           {isMuted ? (
@@ -279,6 +318,9 @@ export default function App() {
                 src={slides[currentSlide].image}
                 alt={`Slide ${currentSlide + 1}`}
                 className="max-w-full max-h-full w-auto h-auto object-contain"
+                onError={(e) => {
+                  e.currentTarget.src = 'https://placehold.co/600x400?text=Upload+foto' + (currentSlide + 1) + '.jpg';
+                }}
               />
               
               {/* Foto circular del cumpleañero - solo en la segunda imagen */}
@@ -296,7 +338,6 @@ export default function App() {
                       alt="Cumpleañero"
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        // Fallback si no hay foto
                         e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Ccircle cx="50" cy="50" r="50" fill="%23FFA500"/%3E%3Ctext x="50" y="50" text-anchor="middle" dy=".3em" font-size="40" fill="white"%3E👑%3C/text%3E%3C/svg%3E';
                       }}
                     />
@@ -332,12 +373,12 @@ export default function App() {
               key={i}
               className="absolute w-2 h-2 bg-yellow-300 rounded-full"
               initial={{
-                x: Math.random() * window.innerWidth,
+                x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
                 y: -20,
                 opacity: 0.5,
               }}
               animate={{
-                y: window.innerHeight + 20,
+                y: (typeof window !== 'undefined' ? window.innerHeight : 800) + 20,
                 opacity: [0.5, 1, 0.5],
               }}
               transition={{
